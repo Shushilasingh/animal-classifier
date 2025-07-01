@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animal Classifier</title>
+  <style>
+    body {
+      background-color: #f0f4f8;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #5e60ce;
+    }
+    input[type="file"] {
+      margin: 1rem 0;
+      padding: 0.5rem;
+    }
+    button {
+      background-color: #5e60ce;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      background-color: #e0f7fa;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    img {
+      margin-top: 1rem;
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Animal Image Classifier</h1>
+    <form id="upload-form">
+      <input type="file" id="file-input" name="file" accept="image/*"><br>
+      <button type="submit">Predict</button>
+    </form>
+    <div class="result" id="result-box" style="display:none;"></div>
+    <img id="preview" src="" alt="" style="display:none;">
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const resultBox = document.getElementById('result-box');
+    const preview = document.getElementById('preview');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('file-input');
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('http://localhost:8000/predict', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `
+        <p><strong>Prediction:</strong> ${data.prediction}</p>
+        <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
+      `;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
